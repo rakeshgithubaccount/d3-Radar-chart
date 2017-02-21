@@ -14,7 +14,6 @@ var d = [
 			{axis:"Internet Banking",value:0.12},
 			{axis:"News Sportsites",value:0.34},
 			{axis:"Search Engine",value:0.28}
-              
 			
 			
 		  ],[
@@ -22,8 +21,7 @@ var d = [
 			{axis:"Social Networks",value:0.38},
 			{axis:"Internet Banking",value:0.27},
 			{axis:"News Sportsites",value:0.28},
-			{axis:"Search Engine",value:0.16}
-			
+			{axis:"Search Engine",value:0.16}			
 		  ]
 		];
 

@@ -7,12 +7,19 @@
 //
 //For a bit of extra information check the blog about it:
 //http://nbremer.blogspot.nl/2013/09/making-d3-radar-chart-look-bit-better.html
-var paramList = [{axis:"Email",value:0.29,reverse:"yes"},
-			{axis:"Social Networks",value:0.16,reverse:"no"},
-			{axis:"Internet Banking",value:0.12,reverse:"no"},
-			{axis:"News Sportsites",value:0.34,reverse:"no"},
-			{axis:"Search Engine",value:0.28,reverse:"no"}];
+var paramList = [{axis:"Email",value:0.29,reverse:"no",min:60,max:-60},
+			{axis:"Social Networks",value:0.16,reverse:"no",min:100,max:600},
+			{axis:"Internet Banking",value:0.12,reverse:"yes",min:2,max:12},
+			{axis:"News Sportsites",value:0.34,reverse:"no",min:1,max:6},
+			{axis:"Search Engine",value:0.28,reverse:"no",min:-50,max:-300}];
+
+/*var paramList = [{axis:"Email",value:0.29,reverse:"no",min:"10",max:"60"},
+			{axis:"Social Networks",value:0.16,reverse:"no",min:"100",max:"1000"},
+			{axis:"Internet Banking",value:0.12,reverse:"no",min:"100000",max:"500000"},
+			{axis:"News Sportsites",value:0.34,reverse:"no",min:"1",max:"100"},
+			{axis:"Search Engine",value:0.28,reverse:"no",min:"-1",max:"-10"}];*/
 var self = this;
+var actualPointYPosition;
 var RadarChart = {
   draw: function(id, d, options,paramList){
   var cfg = {
@@ -78,20 +85,30 @@ var RadarChart = {
 	//Text indicating at what % each level is
       
 for(var i=0; i<d[0].length;i++){
+//for(var i=0; i<1;i++){
+      var lineColor;
       var x1 = cfg.w/2,y1 = cfg.h/2;
       var x2 = cfg.w/2*(1-cfg.factor*Math.sin(i*cfg.radians/total));
       var y2 = cfg.h/2*(1-cfg.factor*Math.cos(i*cfg.radians/total));
+    console.log("x1 == "+x1+' --- x2 === '+x2)
+    console.log("y1=="+y1+'   --- y2 === '+y2)
       var xInterval = (x2 - x1) / (cfg.levels), yInterval = (y2 - y1) / (cfg.levels);
       var xIncreasingAxisvalue = x1,yIncreasingAxisvalue = y1;
-   //for(var j=0; j<cfg.levels-1; j++){
+      var valueInterval = 0;
+      var dataValues = []; 
+    
+    for(var p=0;p<cfg.levels;p++){
+        dataValues.push(self.paramList[i].min+valueInterval);            //Actual Values
+        valueInterval = valueInterval + Math.round(((self.paramList[i].max)-self.paramList[i].min)/(cfg.levels-1));
+    }
     
     (self.paramList[i].reverse === "yes")? j = cfg.levels-1 : j = 0;    
     var condition = (self.paramList[i].reverse === "yes") ?
       function(j){
-          return j>0;
+          return j>=0;
       } :
       function(j){
-          return j<cfg.levels-1;
+          return j<cfg.levels;
       };
     
    
@@ -99,15 +116,14 @@ for(var i=0; i<d[0].length;i++){
      
 	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
    // alert(self.paramList[i].reverse)
-    if(j==0){
-        xIncreasingAxisvalue = xIncreasingAxisvalue + xInterval;     
-        yIncreasingAxisvalue = yIncreasingAxisvalue + yInterval;     
+    /*if(j==0){
+       // xIncreasingAxisvalue = xIncreasingAxisvalue + xInterval;     
+        //yIncreasingAxisvalue = yIncreasingAxisvalue + yInterval;     
       }
     else if(j=== cfg.levels-1){
-         xIncreasingAxisvalue = xIncreasingAxisvalue + xInterval;     
-        yIncreasingAxisvalue = yIncreasingAxisvalue + yInterval;
-    }
-        
+         //xIncreasingAxisvalue = xIncreasingAxisvalue + xInterval;     
+        //yIncreasingAxisvalue = yIncreasingAxisvalue + yInterval;
+    }*/
 	  g.selectAll(".levels")
 	   .data([1]) //dummy data
 	   .enter()
@@ -118,8 +134,12 @@ for(var i=0; i<d[0].length;i++){
 	   .style("font-family", "sans-serif")
 	   .style("font-size", "10px")
 	   //.attr("transform", "translate(" + (cfg.w/2-lev    elFactor + cfg.ToRight) + ", " + (cfg.h/2-levelFactor) + ")")
-	   .attr("fill", "#737373")
-	   .text(Format((j+1)*cfg.maxValue/cfg.levels));
+	   .attr("fill", lineColor)
+	   //.text(Format((j+1)*cfg.maxValue/cfg.levels));         
+      //.text(Math.round((j)*(self.paramList[i].max-self.paramList[i].min)/cfg.levels));            //Actual Values
+     
+      .text(dataValues[j]);            //Actual Values
+         //valueInterval = valueInterval + Math.round(((self.paramList[i].max)-self.paramList[i].min)/(cfg.levels-1));
         xIncreasingAxisvalue = xIncreasingAxisvalue + xInterval;
         yIncreasingAxisvalue = yIncreasingAxisvalue + yInterval;  
         (self.paramList[i].reverse === "yes")? j-- : j++;
@@ -128,13 +148,13 @@ for(var i=0; i<d[0].length;i++){
  }
 	
 	series = 0;
-
+//console.log(allAxis)
 	var axis = g.selectAll(".axis")
 			.data(allAxis)
 			.enter()
 			.append("g")
 			.attr("class", "axis");
-
+  
 	axis.append("line")
 		.attr("x1", cfg.w/2)
 		.attr("y1", cfg.h/2)
@@ -161,15 +181,16 @@ for(var i=0; i<d[0].length;i++){
 	  g.selectAll(".nodes")
 		.data(y, function(j, i){
           
-          /***  Reverse Login */
-          if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
+          /***  Reverse Logic */
+         /* if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
               j.value = 0.5 - j.value;
-          }
+          }*/
 		  dataValues.push([
 			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)), 
 			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
 		  ]);
 		});
+       // console.log(dataValues[0])
 	  dataValues.push(dataValues[0]);
 	  g.selectAll(".area")
 					 .data([dataValues])
@@ -184,10 +205,12 @@ for(var i=0; i<d[0].length;i++){
 							 str=str+d[pti][0]+","+d[pti][1]+" ";
 						 }
 						 return str;
-					  })
+					  }
+                          )
 					 .style("fill", function(j, i){return cfg.color(series)})
 					 .style("fill-opacity", cfg.opacityArea)
 					 .on('mouseover', function (d){
+          
 										z = "polygon."+d3.select(this).attr("class");
 										g.selectAll("polygon")
 										 .transition(200)
@@ -214,26 +237,40 @@ for(var i=0; i<d[0].length;i++){
 		.attr('r', cfg.radius)
 		.attr("alt", function(j){return Math.max(j.value, 0)})
 		.attr("cx", function(j, i){
-		  dataValues.push([
+		 /* dataValues.push([
 			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)), 
 			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-		]);
+		]);*/
           
           /***  Reverse Login */
-          if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
+          /*if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
               j.value = 0.5 - j.value;
-          }
-          
+          }*/
+          //console.log("X = "+cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)))
 		return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
 		})
 		.attr("cy", function(j, i){
           
           /***  Reverse Login */
-          if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
+          /*if(j.axis==="Email" && self.paramList[i].reverse === "yes"){
               j.value = 0.5 - j.value;
-          }
+          }*/
+          //console.log("Y = "+cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total)))
+          //console.log("j = "+j.value+"---I = "+i)
+		 // return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
           
-		  return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
+          /** y axis login **/
+          
+            var y1 = 250,y2 = 450;
+            var yAxisDifference = Math.abs(y1-y2);
+            var min = 10,max=60
+            var diff = Math.abs(max-min);
+            var vfd = 30;
+            var actualPercent = ((diff - vfd)/diff)*100;
+            (y1>y2)? actualPointYPosition = y1 - (yAxisDifference/100)*actualPercent : actualPointYPosition = y1 + (yAxisDifference/100)*actualPercent;
+            console.log(actualPointYPosition);
+                
+            return actualPointYPosition;
 		})
 		.attr("data-id", function(j){return j.axis})
 		.style("fill", cfg.color(series)).style("fill-opacity", .9)
