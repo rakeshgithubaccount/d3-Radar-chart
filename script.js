@@ -9,19 +9,19 @@ var LegendOptions = ['Smartphone','Tablet'];
 //Data
 var d = [
 		  [
-			{axis:"Email",value:0.29},
-			{axis:"Social Networks",value:0.02},
-			{axis:"Internet Banking",value:0.12},
-			{axis:"News Sportsites",value:0.34},
-			{axis:"Search Engine",value:0.28}
+			{axis:"Email",value:30},
+			{axis:"Social Networks",value:220},
+			{axis:"Internet Banking",value:6},
+			{axis:"News Sportsites",value:2},
+			{axis:"Search Engine",value:-80}
 			
 			
 		  ],[
-			{axis:"Email",value:0.38},
-			{axis:"Social Networks",value:0.38},
-			{axis:"Internet Banking",value:0.27},
-			{axis:"News Sportsites",value:0.28},
-			{axis:"Search Engine",value:0.16}			
+			{axis:"Email",value:20},
+			{axis:"Social Networks",value:500},
+			{axis:"Internet Banking",value:10.33},
+			{axis:"News Sportsites",value:5},
+			{axis:"Search Engine",value:-250}	
 		  ]
 		];
 
